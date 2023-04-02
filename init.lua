@@ -111,23 +111,8 @@ require('lazy').setup({
         topdelete = { text = '‾' },
         changedelete = { text = '~' },
       },
-      -- current_line_blame_formatter = '   · <author>, <author_time:%R> | <summary> (<abbrev_sha>)',
-      -- keymaps = {
-      --   noremap = true,
-      --   ['n <leader>gp'] = { expr = true, "&diff ? '[c' : '<cmd>lua require\"gitsigns.actions\".prev_hunk()<CR>'" },
-      --   ['n <leader>gn'] = { expr = true, "&diff ? ']c' : '<cmd>lua require\"gitsigns.actions\".next_hunk()<CR>'" },
-      --   ['n <leader>gs'] = '<cmd>lua require"gitsigns".stage_hunk()<CR>',
-      --   ['v <leader>gs'] = '<cmd>lua require"gitsigns".stage_hunk({vim.fn.line("."), vim.fn.line("v")})<CR>',
-      --   ['n <leader>gu'] = '<cmd>lua require"gitsigns".undo_stage_hunk()<CR>',
-      --   ['n <leader>gx'] = '<cmd>lua require"gitsigns".reset_hunk()<CR>',
-      --   ['v <leader>gx'] = '<cmd>lua require"gitsigns".reset_hunk({vim.fn.line("."), vim.fn.line("v")})<CR>',
-      --   ['n <leader>gX'] = '<cmd>lua require"gitsigns".reset_buffer()<CR>',
-      --   ['n <leader>gh'] = '<cmd>lua require"gitsigns".preview_hunk()<CR>',
-      --   -- Text objects
-      --   --['o ih'] = ':<C-U>lua require"gitsigns.actions".select_hunk()<CR>',
-      --   --['x ih'] = ':<C-U>lua require"gitsigns.actions".select_hunk()<CR>'
-      -- }
-    },
+      current_line_blame_formatter = '   · <author>, <author_time:%R> | <summary> (<abbrev_sha>)',
+    }
   },
 
   {
@@ -146,9 +131,9 @@ require('lazy').setup({
     opts = {
       options = {
         icons_enabled = true,
-        -- theme = 'onedark',
         component_separators = '|',
         section_separators = '',
+        extensions = { 'fzf', 'quickfix' },
       },
     },
   },
@@ -161,6 +146,9 @@ require('lazy').setup({
     opts = {
       char = '┊',
       show_trailing_blankline_indent = false,
+      show_end_of_line = true,
+      show_current_context = true,
+      show_current_context_start = true,
     },
   },
 
@@ -194,6 +182,8 @@ require('lazy').setup({
     end,
   },
 
+  { 'nvim-treesitter/nvim-treesitter-context', opts = {} },
+
   -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
   --       These are some example plugins that I've included in the kickstart repository.
   --       Uncomment any of the lines below to enable them.
@@ -212,8 +202,11 @@ require('lazy').setup({
 }, {})
 
 -- [[ Setting options ]]
--- See `:help vim.o`
+-- Indent-Blankline settings
+vim.opt.list = true
+vim.opt.listchars:append("eol:↴")
 
+-- See `:help vim.o`
 -- Set highlight on search
 vim.o.hlsearch = false
 
@@ -223,15 +216,18 @@ vim.wo.number = true
 -- Show the line number relative to the line with the cursor
 vim.wo.relativenumber = true
 
--- Number of spaces that a <Tab> in the file counts for.
+-- This option changes how text is displayed
+vim.o.wrap = false
+
+-- Number of spaces that a <Tab> in the file counts for
 vim.o.tabstop = 4
 
 vim.o.expandtab = true
 --
--- Minimal number of screen lines to keep above and below the cursor.
+-- Minimal number of screen lines to keep above and below the cursor
 vim.o.scrolloff = 8
 
--- Number of spaces to use for each step of (auto)indent.
+-- Number of spaces to use for each step of (auto)indent
 vim.o.shiftwidth = 4
 
 -- Enable mouse mode
@@ -284,9 +280,33 @@ vim.o.laststatus = 3
 -- See `:help vim.keymap.set()`
 vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
 
+-- Move lines
+vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
+vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
+
+-- Keep cursor in place after J
+vim.keymap.set("n", "J", "mzJ`z")
+
+-- Replace without replacing content
+vim.keymap.set("x", "<leader>p", [["_dP]])
+
+-- Copy to global registry
+vim.keymap.set({ "n", "v" }, "<leader>y", [["+y]])
+vim.keymap.set("n", "<leader>Y", [["+Y]])
+
+-- Replace word
+vim.keymap.set("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]])
+
+-- Make file executable
+vim.keymap.set("n", "<leader>x", "<cmd>!chmod +x %<CR>", { silent = true })
+
 -- Remap for dealing with word wrap
 vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
 vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
+
+-- Keep cursor in middle when moving
+vim.keymap.set("n", "<C-d>", "<C-d>zz")
+vim.keymap.set("n", "<C-u>", "<C-u>zz")
 
 -- [[ Highlight on yank ]]
 -- See `:help vim.highlight.on_yank()`
@@ -331,6 +351,23 @@ vim.keymap.set('n', '<leader>sh', require('telescope.builtin').help_tags, { desc
 vim.keymap.set('n', '<leader>sw', require('telescope.builtin').grep_string, { desc = '[S]earch current [W]ord' })
 vim.keymap.set('n', '<leader>sg', require('telescope.builtin').live_grep, { desc = '[S]earch by [G]rep' })
 vim.keymap.set('n', '<leader>sd', require('telescope.builtin').diagnostics, { desc = '[S]earch [D]iagnostics' })
+vim.keymap.set('n', '<leader>sr', require('telescope.builtin').registers, { desc = '[S]earch [R]egisters' })
+
+-- Git
+vim.keymap.set('n', '<leader>gst', require('telescope.builtin').git_status, { desc = 'Git Status' })
+vim.keymap.set('n', '<leader>glb', function()
+  require('telescope.builtin').git_branches(require('telescope.themes').get_dropdown { previwer = false })
+end, { desc = '[G]it [L]ist [B]ranches' })
+vim.keymap.set('n', '<leader>glc', require('telescope.builtin').git_commits, { desc = '[G]it [L]ist [C]ommits' })
+
+-- Others
+vim.keymap.set('n', '<leader>ch', require("telescope.builtin").command_history, { desc = '[C]ommand [H]istory' })
+-- vim.keymap.set('n', '<leader>sm', require("telescope.builtin").marks, { desc = 'Marks' })
+
+-- Language Servers
+vim.keymap.set('n', '<leader>lsd', require("telescope.builtin").lsp_definitions, { desc = 'LSP Definitions' })
+vim.keymap.set('n', '<leader>lsi', require("telescope.builtin").lsp_implementations, { desc = 'LSP Implementations' })
+vim.keymap.set('n', '<leader>lst', require("telescope.builtin").lsp_type_definitions, { desc = 'LSP Type Definitions' })
 
 -- [[ Configure Treesitter ]]
 -- See `:help nvim-treesitter`
@@ -449,6 +486,36 @@ local on_attach = function(_, bufnr)
   end, { desc = 'Format current buffer with LSP' })
 end
 
+-- GitSigns Navigation
+vim.keymap.set('n', ']c', function()
+  if vim.wo.diff then return ']c' end
+  vim.schedule(function() require('gitsigns').next_hunk() end)
+  return '<Ignore>'
+end, { expr = true, desc = 'Next Hunk' })
+
+vim.keymap.set('n', '[c', function()
+  if vim.wo.diff then return '[c' end
+  vim.schedule(function() require('gitsigns').prev_hunk() end)
+  return '<Ignore>'
+end, { expr = true, desc = 'Previous Hunk' })
+
+-- Actions
+vim.keymap.set({ 'n', 'v' }, '<leader>hs', require('gitsigns').stage_hunk, { desc = 'Stage Hunk' })
+vim.keymap.set({ 'n', 'v' }, '<leader>hr', require('gitsigns').reset_hunk, { desc = 'Reset Hunk' })
+vim.keymap.set('n', '<leader>hS', require('gitsigns').stage_buffer, { desc = 'Stage Buffer' })
+vim.keymap.set('n', '<leader>hu', require('gitsigns').undo_stage_hunk, { desc = 'Undo Stage Hunk' })
+vim.keymap.set('n', '<leader>hR', require('gitsigns').reset_buffer, { desc = 'Reset Buffer' })
+vim.keymap.set('n', '<leader>hp', require('gitsigns').preview_hunk, { desc = 'Preview Hunk' })
+vim.keymap.set('n', '<leader>hb', function() require('gitsigns').blame_line { full = true } end,
+  { desc = 'Show blame_line' })
+vim.keymap.set('n', '<leader>tb', require('gitsigns').toggle_current_line_blame, { desc = 'Toggle current blame_line' })
+vim.keymap.set('n', '<leader>hd', require('gitsigns').diffthis, { desc = 'Diff' })
+vim.keymap.set('n', '<leader>hD', function() require('gitsigns').diffthis('~') end, { desc = 'Diff ~' })
+vim.keymap.set('n', '<leader>td', require('gitsigns').toggle_deleted, { desc = 'Toggle deleted' })
+
+-- Text object
+-- vim.keymap.set({ 'o', 'x' }, 'ih', ':<C-U>Gitsigns select_hunk<CR>')
+
 -- Enable the following language servers
 --  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
 --
@@ -456,9 +523,9 @@ end
 --  the `settings` field of the server config. You must look up that documentation yourself.
 local servers = {
   -- clangd = {},
-  -- gopls = {},
-  -- pyright = {},
-  -- rust_analyzer = {},
+  gopls = {},
+  pyright = {},
+  rust_analyzer = {},
   -- tsserver = {},
 
   lua_ls = {
