@@ -111,6 +111,22 @@ require('lazy').setup({
         topdelete = { text = '‾' },
         changedelete = { text = '~' },
       },
+      -- current_line_blame_formatter = '   · <author>, <author_time:%R> | <summary> (<abbrev_sha>)',
+      -- keymaps = {
+      --   noremap = true,
+      --   ['n <leader>gp'] = { expr = true, "&diff ? '[c' : '<cmd>lua require\"gitsigns.actions\".prev_hunk()<CR>'" },
+      --   ['n <leader>gn'] = { expr = true, "&diff ? ']c' : '<cmd>lua require\"gitsigns.actions\".next_hunk()<CR>'" },
+      --   ['n <leader>gs'] = '<cmd>lua require"gitsigns".stage_hunk()<CR>',
+      --   ['v <leader>gs'] = '<cmd>lua require"gitsigns".stage_hunk({vim.fn.line("."), vim.fn.line("v")})<CR>',
+      --   ['n <leader>gu'] = '<cmd>lua require"gitsigns".undo_stage_hunk()<CR>',
+      --   ['n <leader>gx'] = '<cmd>lua require"gitsigns".reset_hunk()<CR>',
+      --   ['v <leader>gx'] = '<cmd>lua require"gitsigns".reset_hunk({vim.fn.line("."), vim.fn.line("v")})<CR>',
+      --   ['n <leader>gX'] = '<cmd>lua require"gitsigns".reset_buffer()<CR>',
+      --   ['n <leader>gh'] = '<cmd>lua require"gitsigns".preview_hunk()<CR>',
+      --   -- Text objects
+      --   --['o ih'] = ':<C-U>lua require"gitsigns.actions".select_hunk()<CR>',
+      --   --['x ih'] = ':<C-U>lua require"gitsigns.actions".select_hunk()<CR>'
+      -- }
     },
   },
 
@@ -204,6 +220,20 @@ vim.o.hlsearch = false
 -- Make line numbers default
 vim.wo.number = true
 
+-- Show the line number relative to the line with the cursor
+vim.wo.relativenumber = true
+
+-- Number of spaces that a <Tab> in the file counts for.
+vim.o.tabstop = 4
+
+vim.o.expandtab = true
+--
+-- Minimal number of screen lines to keep above and below the cursor.
+vim.o.scrolloff = 8
+
+-- Number of spaces to use for each step of (auto)indent.
+vim.o.shiftwidth = 4
+
 -- Enable mouse mode
 vim.o.mouse = 'a'
 
@@ -235,6 +265,18 @@ vim.o.completeopt = 'menuone,noselect'
 
 -- NOTE: You should make sure your terminal supports this
 vim.o.termguicolors = true
+
+-- Comma-separated list of screen columns that are highlighted with ColorColumn
+vim.o.colorcolumn = "79"
+
+-- Highlight the text line of the cursor with CursorLine.
+vim.o.cursorline = true
+
+-- This option enables the window bar and determines its contents
+vim.o.winbar = "%=%m %f"
+
+-- Determines the content of the status line
+vim.o.laststatus = 3
 
 -- [[ Basic Keymaps ]]
 
