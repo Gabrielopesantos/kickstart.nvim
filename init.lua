@@ -115,6 +115,15 @@ require('lazy').setup({
     }
   },
 
+  -- {
+  -- Theme inspired by Atom
+  --   'navarasu/onedark.nvim',
+  --   priority = 1000,
+  --   config = function()
+  --     vim.cmd.colorscheme 'onedark'
+  --   end,
+  -- },
+
   {
     -- Color theme
     'base16-project/base16-vim',
@@ -131,6 +140,7 @@ require('lazy').setup({
     opts = {
       options = {
         icons_enabled = true,
+        -- theme = 'onedark',
         component_separators = '|',
         section_separators = '',
         extensions = { 'fzf', 'quickfix' },
@@ -337,7 +347,12 @@ pcall(require('telescope').load_extension, 'fzf')
 
 -- See `:help telescope.builtin`
 vim.keymap.set('n', '<leader>?', require('telescope.builtin').oldfiles, { desc = '[?] Find recently opened files' })
-vim.keymap.set('n', '<leader><space>', require('telescope.builtin').buffers, { desc = '[ ] Find existing buffers' })
+vim.keymap.set('n', '<leader><space>', function()
+  require('telescope.builtin').buffers(require('telescope.themes').get_ivy {
+    winblend = 10,
+    previewer = false
+  })
+end, { desc = '[ ] Find existing buffers' })
 vim.keymap.set('n', '<leader>/', function()
   -- You can pass additional configuration to telescope to change theme, layout, etc.
   require('telescope.builtin').current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
