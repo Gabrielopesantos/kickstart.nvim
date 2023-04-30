@@ -115,24 +115,24 @@ require('lazy').setup({
     }
   },
 
-  -- {
-  -- Theme inspired by Atom
-  --   'navarasu/onedark.nvim',
-  --   priority = 1000,
-  --   config = function()
-  --     vim.cmd.colorscheme 'onedark'
-  --   end,
-  -- },
-
   {
     -- Color theme
-    'base16-project/base16-vim',
+    'rebelot/kanagawa.nvim',
     priority = 1000,
     config = function()
-      vim.cmd.colorscheme 'base16-tomorrow-night'
+      vim.cmd.colorscheme 'kanagawa-dragon'
     end
   },
 
+  -- {
+  --   -- Color theme
+  --   'base16-project/base16-vim',
+  --   priority = 1000,
+  --   config = function()
+  --     vim.cmd.colorscheme 'base16-tomorrow-night'
+  --   end
+  -- },
+  --
   {
     -- Set lualine as statusline
     'nvim-lualine/lualine.nvim',
@@ -140,7 +140,7 @@ require('lazy').setup({
     opts = {
       options = {
         icons_enabled = true,
-        -- theme = 'onedark',
+        theme = 'kanagawa',
         component_separators = '|',
         section_separators = '',
         extensions = { 'fzf', 'quickfix' },
@@ -158,7 +158,7 @@ require('lazy').setup({
       show_trailing_blankline_indent = false,
       show_end_of_line = true,
       show_current_context = true,
-      show_current_context_start = true,
+      -- show_current_context_start = true,
     },
   },
 
@@ -191,8 +191,14 @@ require('lazy').setup({
       pcall(require('nvim-treesitter.install').update { with_sync = true })
     end,
   },
-
-  { 'nvim-treesitter/nvim-treesitter-context', opts = {} },
+  {
+    'simrat39/rust-tools.nvim',
+    dependencies = { 'neovim/nvim-lspconfig' }
+  },
+  {
+    'nvim-treesitter/nvim-treesitter-context',
+    opts = {}
+  },
 
   -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
   --       These are some example plugins that I've included in the kickstart repository.
@@ -389,7 +395,8 @@ vim.keymap.set('n', '<leader>lst', require("telescope.builtin").lsp_type_definit
 -- See `:help nvim-treesitter`
 require('nvim-treesitter.configs').setup {
   -- Add languages to be installed here that you want installed for treesitter
-  ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'typescript', 'vim', 'bash' },
+  ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'typescript', 'javascript', 'html', 'css',
+    'vim', 'bash', 'make', 'json', 'yaml', 'dockerfile', 'hcl', 'toml', 'sql', 'awk', 'zig' },
 
   -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
   auto_install = false,
@@ -538,13 +545,13 @@ vim.keymap.set('n', '<leader>td', require('gitsigns').toggle_deleted, { desc = '
 --  Add any additional override configuration in the following tables. They will be passed to
 --  the `settings` field of the server config. You must look up that documentation yourself.
 local servers = {
-  -- clangd = {},
+  clangd = {},
   gopls = {},
   pyright = {},
   rust_analyzer = {},
   bashls = {},
+  jsonls = {},
   -- tsserver = {},
-
   lua_ls = {
     Lua = {
       workspace = { checkThirdParty = false },
