@@ -84,7 +84,7 @@ require('lazy').setup({
 
       -- Useful status updates for LSP
       -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
-      { 'j-hui/fidget.nvim', opts = {} },
+      { 'j-hui/fidget.nvim',       opts = {} },
 
       -- Additional lua configuration, makes nvim stuff amazing!
       'folke/neodev.nvim',
@@ -117,22 +117,22 @@ require('lazy').setup({
 
   {
     -- Color theme
-    'rebelot/kanagawa.nvim',
+    'base16-project/base16-vim',
     priority = 1000,
     config = function()
-      vim.cmd.colorscheme 'kanagawa-dragon'
+      vim.cmd.colorscheme 'base16-tomorrow-night'
     end
   },
 
   -- {
-  --   -- Color theme
-  --   'base16-project/base16-vim',
+  --   'navarasu/onedark.nvim',
   --   priority = 1000,
   --   config = function()
-  --     vim.cmd.colorscheme 'base16-tomorrow-night'
+  --     vim.cmd.colorscheme 'onedark'
   --   end
   -- },
   --
+
   {
     -- Set lualine as statusline
     'nvim-lualine/lualine.nvim',
@@ -140,7 +140,7 @@ require('lazy').setup({
     opts = {
       options = {
         icons_enabled = true,
-        theme = 'kanagawa',
+        theme = 'auto',
         component_separators = '|',
         section_separators = '',
         extensions = { 'fzf', 'quickfix' },
@@ -202,7 +202,7 @@ require('lazy').setup({
   --       These are some example plugins that I've included in the kickstart repository.
   --       Uncomment any of the lines below to enable them.
   require 'kickstart.plugins.autoformat',
-  -- require 'kickstart.plugins.debug',
+  require 'kickstart.plugins.debug',
 
   -- NOTE: The import below automatically adds your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    You can use this folder to prevent any conflicts with this init.lua if you're interested in keeping
