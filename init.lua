@@ -126,13 +126,21 @@ require('lazy').setup({
   },
 
   {
-    -- Color theme
-    'base16-project/base16-vim',
+    'folke/tokyonight.nvim',
     priority = 1000,
     config = function()
-      vim.cmd.colorscheme 'base16-tomorrow-night'
+      vim.cmd.colorscheme 'tokyonight-storm'
     end
   },
+
+  -- Color theme
+  -- {
+  --   'RRethy/nvim-base16',
+  --   priority = 1000,
+  --   config = function()
+  --     vim.cmd.colorscheme 'base16-tomorrow-night'
+  --   end
+  -- },
 
   {
     -- Set lualine as statusline
@@ -395,7 +403,7 @@ vim.keymap.set('n', '<leader>lst', require("telescope.builtin").lsp_type_definit
 require('nvim-treesitter.configs').setup {
   -- Add languages to be installed here that you want installed for treesitter
   ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'typescript', 'javascript', 'html', 'css',
-    'vim', 'bash', 'make', 'json', 'yaml', 'dockerfile', 'hcl', 'toml', 'sql', 'awk', 'zig', 'nix' },
+    'vim', 'bash', 'make', 'json', 'yaml', 'dockerfile', 'hcl', 'toml', 'sql', 'awk', 'zig', 'nix', 'terraform' },
 
   -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
   auto_install = false,
@@ -556,7 +564,10 @@ local servers = {
       workspace = { checkThirdParty = false },
       telemetry = { enable = false },
     },
+    terraformls = {},
   },
+  yamlls = {},
+  zls = {},
 }
 
 -- Setup neovim lua configuration
@@ -658,8 +669,8 @@ cmp.setup {
       -- cmp.config.compare.scopes, --this is commented in nvim-cmp too
       cmp.config.compare.exact,
       cmp.config.compare.score,
-      cmp.config.compare.recently_used,
-      cmp.config.compare.locality,
+      -- cmp.config.compare.recently_used,
+      -- cmp.config.compare.locality,
       cmp.config.compare.kind,
       cmp.config.compare.sort_text,
       cmp.config.compare.length,
