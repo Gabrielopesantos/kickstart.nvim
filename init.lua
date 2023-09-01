@@ -148,7 +148,7 @@ require('lazy').setup({
     -- See `:help lualine.txt`
     opts = {
       options = {
-        icons_enabled = false,
+        icons_enabled = true,
         theme = 'auto',
         component_separators = '|',
         section_separators = '',
@@ -554,6 +554,7 @@ vim.keymap.set('n', '<leader>td', require('gitsigns').toggle_deleted, { desc = '
 local servers = {
   clangd = {},
   gopls = {},
+  -- pylsp = {},
   pyright = {},
   rust_analyzer = {},
   bashls = {},
@@ -568,6 +569,7 @@ local servers = {
   },
   yamlls = {},
   zls = {},
+  terraformls = {},
 }
 
 -- Setup neovim lua configuration
