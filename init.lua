@@ -590,6 +590,7 @@ local servers = {
   yamlls = {},
   zls = {},
   terraformls = {},
+  dockerls = {},
 }
 
 -- Setup neovim lua configuration
