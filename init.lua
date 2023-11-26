@@ -162,13 +162,13 @@ require('lazy').setup({
     'lukas-reineke/indent-blankline.nvim',
     -- Enable `lukas-reineke/indent-blankline.nvim`
     -- See `:help indent_blankline.txt`
-    opts = {
-      char = '┊',
-      show_trailing_blankline_indent = false,
-      show_end_of_line = true,
-      show_current_context = true,
-      -- show_current_context_start = true,
-    },
+    -- opts = {
+    --   char = '┊',
+    --   show_trailing_blankline_indent = false,
+    --   show_end_of_line = true,
+    --   show_current_context = true,
+    --   -- show_current_context_start = true,
+    -- },
   },
 
   -- "gc" to comment visual regions/lines
@@ -408,7 +408,7 @@ vim.keymap.set('n', '<leader>lst', require("telescope.builtin").lsp_type_definit
 require('nvim-treesitter.configs').setup {
   -- Add languages to be installed here that you want installed for treesitter
   ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'typescript', 'javascript', 'html', 'css',
-    'vim', 'bash', 'make', 'json', 'yaml', 'dockerfile', 'hcl', 'toml', 'sql', 'awk', 'zig', 'nix', 'terraform' },
+    'vim', 'bash', 'make', 'json', 'yaml', 'dockerfile', 'hcl', 'toml', 'sql', 'awk', 'zig', 'nix', 'terraform', 'comment' },
 
   -- Install parsers synchronously (only applied to `ensure_installed`)
   sync_install = false,
