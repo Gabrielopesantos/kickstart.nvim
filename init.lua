@@ -84,7 +84,7 @@ require('lazy').setup({
 
       -- Useful status updates for LSP
       -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
-      { 'j-hui/fidget.nvim',       tag = 'legacy', opts = {} },
+      { 'j-hui/fidget.nvim',       opts = {} },
 
       -- Additional lua configuration, makes nvim stuff amazing!
       'folke/neodev.nvim',
@@ -101,6 +101,7 @@ require('lazy').setup({
 
       -- Adds LSP completion capabilities
       'hrsh7th/cmp-nvim-lsp',
+      'hrsh7th/cmp-path',
 
       -- Adds a number of user-friendly snippets
       'rafamadriz/friendly-snippets',
@@ -110,7 +111,7 @@ require('lazy').setup({
   -- Useful plugin to show you pending keybinds.
   { 'folke/which-key.nvim',  opts = {} },
   {
-    -- Adds git releated signs to the gutter, as well as utilities for managing changes
+    -- Adds git related signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
     opts = {
       -- See `:help gitsigns.txt`
@@ -121,10 +122,68 @@ require('lazy').setup({
         topdelete = { text = '‾' },
         changedelete = { text = '~' },
       },
-      current_line_blame_formatter = '   · <author>, <author_time:%R> | <summary> (<abbrev_sha>)',
-    }
-  },
+      on_attach = function(bufnr)
+        local gs = package.loaded.gitsigns
 
+        local function map(mode, l, r, opts)
+          opts = opts or {}
+          opts.buffer = bufnr
+          vim.keymap.set(mode, l, r, opts)
+        end
+
+        -- Navigation
+        map({ 'n', 'v' }, ']c', function()
+          if vim.wo.diff then
+            return ']c'
+          end
+          vim.schedule(function()
+            gs.next_hunk()
+          end)
+          return '<Ignore>'
+        end, { expr = true, desc = 'Jump to next hunk' })
+
+        map({ 'n', 'v' }, '[c', function()
+          if vim.wo.diff then
+            return '[c'
+          end
+          vim.schedule(function()
+            gs.prev_hunk()
+          end)
+          return '<Ignore>'
+        end, { expr = true, desc = 'Jump to previous hunk' })
+
+        -- Actions
+        -- Visual mode
+        map('v', '<leader>hs', function()
+          gs.stage_hunk { vim.fn.line '.', vim.fn.line 'v' }
+        end, { desc = 'stage git hunk' })
+        map('v', '<leader>hr', function()
+          gs.reset_hunk { vim.fn.line '.', vim.fn.line 'v' }
+        end, { desc = 'reset git hunk' })
+        -- Normal mode
+        map('n', '<leader>hs', gs.stage_hunk, { desc = 'git stage hunk' })
+        map('n', '<leader>hr', gs.reset_hunk, { desc = 'git reset hunk' })
+        map('n', '<leader>hS', gs.stage_buffer, { desc = 'git Stage buffer' })
+        map('n', '<leader>hu', gs.undo_stage_hunk, { desc = 'undo stage hunk' })
+        map('n', '<leader>hR', gs.reset_buffer, { desc = 'git Reset buffer' })
+        map('n', '<leader>hp', gs.preview_hunk, { desc = 'preview git hunk' })
+        map('n', '<leader>hb', function()
+          gs.blame_line { full = false }
+        end, { desc = 'git blame line' })
+        map('n', '<leader>hd', gs.diffthis, { desc = 'git diff against index' })
+        map('n', '<leader>hD', function()
+          gs.diffthis '~'
+        end, { desc = 'git diff against last commit' })
+
+        -- Toggles
+        map('n', '<leader>tb', gs.toggle_current_line_blame, { desc = 'toggle git blame line' })
+        map('n', '<leader>td', gs.toggle_deleted, { desc = 'toggle git show deleted' })
+
+        -- Text object
+        map({ 'o', 'x' }, 'ih', ':<C-U>Gitsigns select_hunk<CR>', { desc = 'select git hunk' })
+      end,
+    },
+  },
   -- {
   --   'catppuccin/nvim',
   --   priority = 1000,
@@ -134,11 +193,18 @@ require('lazy').setup({
   -- },
 
   -- Color theme
+  -- {
+  --   'RRethy/nvim-base16',
+  --   priority = 1000,
+  --   config = function()
+  --     vim.cmd.colorscheme 'base16-tomorrow-night'
+  --   end
+  -- },
   {
-    'RRethy/nvim-base16',
+    'NTBBloodbath/doom-one.nvim',
     priority = 1000,
     config = function()
-      vim.cmd.colorscheme 'base16-tomorrow-night'
+      vim.cmd.colorscheme 'doom-one'
     end
   },
 
@@ -161,14 +227,16 @@ require('lazy').setup({
     -- Add indentation guides even on blank lines
     'lukas-reineke/indent-blankline.nvim',
     -- Enable `lukas-reineke/indent-blankline.nvim`
-    -- See `:help indent_blankline.txt`
-    -- opts = {
-    --   char = '┊',
-    --   show_trailing_blankline_indent = false,
-    --   show_end_of_line = true,
-    --   show_current_context = true,
-    --   -- show_current_context_start = true,
-    -- },
+    -- See `:ibl`
+    main = 'ibl',
+    opts = {},
+  },
+
+  -- This plugin adds highlights for text filetypes, like `markdown`, `orgmode`, and `neorg`.
+  {
+    "lukas-reineke/headlines.nvim",
+    dependencies = "nvim-treesitter/nvim-treesitter",
+    config = true, -- or `opts = {}`
   },
 
   -- "gc" to comment visual regions/lines
@@ -363,6 +431,42 @@ require('telescope').setup {
 -- Enable telescope fzf native, if installed
 pcall(require('telescope').load_extension, 'fzf')
 
+-- Telescope live_grep in git root
+-- Function to find the git root directory based on the current buffer's path
+local function find_git_root()
+  -- Use the current buffer's path as the starting point for the git search
+  local current_file = vim.api.nvim_buf_get_name(0)
+  local current_dir
+  local cwd = vim.fn.getcwd()
+  -- If the buffer is not associated with a file, return nil
+  if current_file == '' then
+    current_dir = cwd
+  else
+    -- Extract the directory from the current file's path
+    current_dir = vim.fn.fnamemodify(current_file, ':h')
+  end
+
+  -- Find the Git root directory from the current file's path
+  local git_root = vim.fn.systemlist('git -C ' .. vim.fn.escape(current_dir, ' ') .. ' rev-parse --show-toplevel')[1]
+  if vim.v.shell_error ~= 0 then
+    print 'Not a git repository. Searching on current working directory'
+    return cwd
+  end
+  return git_root
+end
+
+-- Custom live_grep function to search in git root
+local function live_grep_git_root()
+  local git_root = find_git_root()
+  if git_root then
+    require('telescope.builtin').live_grep {
+      search_dirs = { git_root },
+    }
+  end
+end
+
+vim.api.nvim_create_user_command('LiveGrepGitRoot', live_grep_git_root, {})
+
 -- See `:help telescope.builtin`
 vim.keymap.set('n', '<leader>?', require('telescope.builtin').oldfiles, { desc = '[?] Find recently opened files' })
 vim.keymap.set('n', '<leader><space>', function()
@@ -379,13 +483,24 @@ vim.keymap.set('n', '<leader>/', function()
   })
 end, { desc = '[/] Fuzzily search in current buffer' })
 
+local function telescope_live_grep_open_files()
+  require('telescope.builtin').live_grep {
+    grep_open_files = true,
+    prompt_title = 'Live Grep in Open Files',
+  }
+end
+
+vim.keymap.set('n', '<leader>f/', telescope_live_grep_open_files, { desc = 'Search [/] in Open Files' })
 vim.keymap.set('n', '<leader>ff', require('telescope.builtin').find_files, { desc = 'Search Files' })
+-- vim.keymap.set('n', '<leader>fs', require('telescope.builtin').builtin, { desc = 'Search Select Telescope' })
 vim.keymap.set('n', '<leader>fg', require('telescope.builtin').git_files, { desc = 'Search Git Files' })
 vim.keymap.set('n', '<leader>fh', require('telescope.builtin').help_tags, { desc = 'Search Help' })
 vim.keymap.set('n', '<leader>fl', require('telescope.builtin').live_grep, { desc = 'Search by Grep' })
 vim.keymap.set('n', '<leader>fd', require('telescope.builtin').diagnostics, { desc = 'Search Diagnostics' })
 vim.keymap.set('n', '<leader>fr', require('telescope.builtin').registers, { desc = 'Search Registers' })
 vim.keymap.set('n', '<leader>fw', require('telescope.builtin').grep_string, { desc = 'Search current Word' })
+vim.keymap.set('n', '<leader>fG', ':LiveGrepGitRoot<cr>', { desc = 'Search by Grep on Git Root' })
+vim.keymap.set('n', '<leader>fr', require('telescope.builtin').resume, { desc = 'Search Resume' })
 
 -- Git
 vim.keymap.set('n', '<leader>gst', require('telescope.builtin').git_status, { desc = 'Git Status' })
@@ -536,35 +651,6 @@ local on_attach = function(_, bufnr)
   end, { desc = 'Format current buffer with LSP' })
 end
 
--- GitSigns Navigation
-vim.keymap.set('n', ']c', function()
-  if vim.wo.diff then return ']c' end
-  vim.schedule(function() require('gitsigns').next_hunk() end)
-  return '<Ignore>'
-end, { expr = true, desc = 'Next Hunk' })
-
-vim.keymap.set('n', '[c', function()
-  if vim.wo.diff then return '[c' end
-  vim.schedule(function() require('gitsigns').prev_hunk() end)
-  return '<Ignore>'
-end, { expr = true, desc = 'Previous Hunk' })
-
--- Actions
-vim.keymap.set({ 'n', 'v' }, '<leader>hs', require('gitsigns').stage_hunk, { desc = 'Stage Hunk' })
-vim.keymap.set({ 'n', 'v' }, '<leader>hr', require('gitsigns').reset_hunk, { desc = 'Reset Hunk' })
-vim.keymap.set('n', '<leader>hS', require('gitsigns').stage_buffer, { desc = 'Stage Buffer' })
-vim.keymap.set('n', '<leader>hu', require('gitsigns').undo_stage_hunk, { desc = 'Undo Stage Hunk' })
-vim.keymap.set('n', '<leader>hR', require('gitsigns').reset_buffer, { desc = 'Reset Buffer' })
-vim.keymap.set('n', '<leader>hp', require('gitsigns').preview_hunk, { desc = 'Preview Hunk' })
-vim.keymap.set('n', '<leader>hb', function() require('gitsigns').blame_line { full = true } end,
-  { desc = 'Show blame_line' })
-vim.keymap.set('n', '<leader>tb', require('gitsigns').toggle_current_line_blame, { desc = 'Toggle current blame_line' })
-vim.keymap.set('n', '<leader>hd', require('gitsigns').diffthis, { desc = 'Diff' })
-vim.keymap.set('n', '<leader>hD', function() require('gitsigns').diffthis('~') end, { desc = 'Diff ~' })
-vim.keymap.set('n', '<leader>td', require('gitsigns').toggle_deleted, { desc = 'Toggle deleted' })
-
--- Text object
--- vim.keymap.set({ 'o', 'x' }, 'ih', ':<C-U>Gitsigns select_hunk<CR>')
 
 -- Enable the following language servers
 --  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
@@ -613,6 +699,7 @@ mason_lspconfig.setup_handlers {
       capabilities = capabilities,
       on_attach = on_attach,
       settings = servers[server_name],
+      filetypes = (servers[server_name] or {}).filetypes,
     }
   end,
 }
@@ -680,8 +767,8 @@ cmp.setup {
     { name = "copilot",  group_index = 2 },
     -- Other Sources
     { name = "nvim_lsp", group_index = 2 },
-    { name = "path",     group_index = 2 },
     { name = "luasnip",  group_index = 2 },
+    { name = "path",     group_index = 2 },
   },
   sorting = {
     priority_weight = 2,
