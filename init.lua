@@ -193,18 +193,11 @@ require('lazy').setup({
   -- },
 
   -- Color theme
-  -- {
-  --   'RRethy/nvim-base16',
-  --   priority = 1000,
-  --   config = function()
-  --     vim.cmd.colorscheme 'base16-tomorrow-night'
-  --   end
-  -- },
   {
-    'NTBBloodbath/doom-one.nvim',
+    'RRethy/nvim-base16',
     priority = 1000,
     config = function()
-      vim.cmd.colorscheme 'doom-one'
+      vim.cmd.colorscheme 'base16-tomorrow-night'
     end
   },
 
@@ -227,9 +220,9 @@ require('lazy').setup({
     -- Add indentation guides even on blank lines
     'lukas-reineke/indent-blankline.nvim',
     -- Enable `lukas-reineke/indent-blankline.nvim`
-    -- See `:ibl`
     main = 'ibl',
-    opts = {},
+    opts = {
+      scope = { enabled = false } },
   },
 
   -- This plugin adds highlights for text filetypes, like `markdown`, `orgmode`, and `neorg`.
