@@ -184,17 +184,8 @@ require('lazy').setup({
       end,
     },
   },
-  -- {
-  --   'catppuccin/nvim',
-  --   priority = 1000,
-  --   config = function()
-  --     vim.cmd.colorscheme 'catppuccin-macchiato'
-  --   end
-  -- },
-
-  -- Color theme
   {
-    'RRethy/nvim-base16',
+    'RRethy/base16-nvim',
     priority = 1000,
     config = function()
       vim.cmd.colorscheme 'base16-tomorrow-night'
@@ -271,6 +262,12 @@ require('lazy').setup({
   {
     'nvim-treesitter/nvim-treesitter-context',
     opts = {}
+  },
+
+  -- Testing
+  {
+    'rcarriga/nvim-notify',
+    opts = {},
   },
 
   -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
@@ -652,7 +649,13 @@ end
 --  the `settings` field of the server config. You must look up that documentation yourself.
 local servers = {
   clangd = {},
-  gopls = {},
+  gopls = {
+    completeUnimported = true,
+    usePlaceholder = true,
+    analyses = {
+      unusedParams = true,
+    },
+  },
   -- pylsp = {},
   pyright = {},
   rust_analyzer = {},
@@ -664,12 +667,12 @@ local servers = {
       workspace = { checkThirdParty = false },
       telemetry = { enable = false },
     },
-    terraformls = {},
   },
   yamlls = {},
   zls = {},
   terraformls = {},
   dockerls = {},
+  helm_ls = {},
 }
 
 -- Setup neovim lua configuration
@@ -721,7 +724,7 @@ cmp.setup {
   mapping = cmp.mapping.preset.insert {
     ['<C-n>'] = cmp.mapping.select_next_item(),
     ['<C-p>'] = cmp.mapping.select_prev_item(),
-    ['<C-d>'] = cmp.mapping.scroll_docs(-4),
+    ['<C-b>'] = cmp.mapping.scroll_docs(-4),
     ['<C-f>'] = cmp.mapping.scroll_docs(4),
     ['<C-Space>'] = cmp.mapping.complete {},
     ['<CR>'] = cmp.mapping.confirm {
