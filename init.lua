@@ -264,11 +264,6 @@ require('lazy').setup({
     opts = {}
   },
 
-  -- Testing
-  {
-    'rcarriga/nvim-notify',
-    opts = {},
-  },
 
   -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
   --       These are some example plugins that I've included in the kickstart repository.
@@ -286,15 +281,18 @@ require('lazy').setup({
 
 -- [[ Setting options ]]
 -- Indent-Blankline settings
-vim.opt.list = true
-vim.opt.listchars:append("eol:↴")
+-- vim.opt.list = true
+-- vim.opt.listchars:append("eol:↴")
 
 -- See `:help vim.o`
 -- Set highlight on search
 vim.o.hlsearch = false
 
 -- Make line numbers default
-vim.wo.number = true
+vim.opt.number = true
+
+-- Don't show the mode, since it's already in status line
+vim.opt.showmode = false
 
 -- Show the line number relative to the line with the cursor
 vim.wo.relativenumber = true
@@ -338,6 +336,16 @@ vim.wo.signcolumn = 'yes'
 vim.o.updatetime = 250
 vim.o.timeout = true
 vim.o.timeoutlen = 300
+
+-- Configure how new splits should be opened
+vim.opt.splitright = true
+vim.opt.splitbelow = true
+
+-- Sets how neovim will display certain whitespace in the editor.
+--  See `:help 'list'`
+--  and `:help 'listchars'`
+vim.opt.list = true
+vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
 
 -- Set completeopt to have a better completion experience
 vim.o.completeopt = 'menuone,noselect'
