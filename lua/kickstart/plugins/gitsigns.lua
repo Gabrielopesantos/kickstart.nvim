@@ -11,7 +11,7 @@ return {
       changedelete = { text = '~' },
     },
     on_attach = function(bufnr)
-      local gs = package.loaded.gitsigns
+      local gs = require 'gitsigns'
 
       local function map(mode, l, r, opts)
         opts = opts or {}
@@ -66,6 +66,7 @@ return {
       -- Toggles
       map('n', '<leader>tb', gs.toggle_current_line_blame, { desc = 'toggle git blame line' })
       map('n', '<leader>td', gs.toggle_deleted, { desc = 'toggle git show deleted' })
+      map('n', '<leader>tD', gs.preview_hunk_inline, { desc = '[T]oggle git show [D]eleted' })
 
       -- Text object
       map({ 'o', 'x' }, 'ih', ':<C-U>Gitsigns select_hunk<CR>', { desc = 'select git hunk' })
